@@ -69,5 +69,5 @@ content: content
 
 production:
   cache: true
-#   content: /var/apps/nesta/shared/content
+  content: /home/keeny/public_html/keeny.co.uk/public/shared/content
 #   google_analytics_code: "UA-???????-?"
