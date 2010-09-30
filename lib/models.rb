@@ -30,6 +30,7 @@ class FileModel
     FORMATS.each do |format|
       filename = model_path("#{path}.#{format}")
       if File.exist?(filename) && needs_loading?(path, filename)
+        # puts filename
         @@cache[path] = self.new(filename)
         break
       end
@@ -45,6 +46,7 @@ class FileModel
     @filename = filename
     @format = filename.split(".").last.to_sym
     parse_file
+    # puts "Parsed File"
     @mtime = File.mtime(filename)
   end
 
@@ -98,7 +100,8 @@ class FileModel
     end
     
     def parse_file
-      first_para, remaining = File.open(@filename).read.split(/\r?\n\r?\n/, 2)
+      first_para, remaining = File.open(@filename).read.split(/\r?\n\r?\n/, 2)     
+          
       @metadata = {}
       if paragraph_is_metadata(first_para)
         @markup = remaining
@@ -110,6 +113,7 @@ class FileModel
         @markup = [first_para, remaining].join("\n\n")
       end
     rescue Errno::ENOENT  # file not found
+      # puts "error parsing metadata: #{@filename}"
       raise Sinatra::NotFound
     end
 end

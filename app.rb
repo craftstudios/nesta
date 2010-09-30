@@ -3,6 +3,10 @@ require "sinatra"
 require "builder"
 require "haml"
 require "sass"
+# require "logger"
+
+# set the views directory
+set :views, File.dirname(__FILE__) + '/views'
 
 require File.join(File.dirname(__FILE__), *%w[lib cache])
 require File.join(File.dirname(__FILE__), *%w[lib config])
@@ -11,6 +15,24 @@ require File.join(File.dirname(__FILE__), *%w[lib path])
 require File.join(File.dirname(__FILE__), *%w[lib overrides])
 
 set :cache_enabled, Nesta::Config.cache
+
+# configure do
+#   # Create the log file if it doesn't exist,
+#   # otherwise just start appending to it,
+#   # preserving the previous content
+#   log_file = File.open('log/nesta_log', 'a+')
+#   # Don't buffer writes to this file. Recommended for development.
+#   log_file.sync = true
+# 
+#   logger = Logger.new(log_file)
+#   # Log everything to the log file
+#   logger.level = Logger::DEBUG
+# 
+#   set :logger, logger
+# end
+# 
+# # Convenience method
+# def logger; settings.logger; end
 
 helpers do
   def set_from_config(*variables)
@@ -37,6 +59,7 @@ helpers do
   
   def set_common_variables
     @menu_items = Page.menu_items
+    # puts "LOADED MENU ITEMS"
     @site_title = Nesta::Config.title
     set_from_config(:title, :subtitle, :google_analytics_code)
     @heading = @title
@@ -121,19 +144,29 @@ end unless Sinatra::Application.environment == :development
 Nesta::Overrides.load_theme_app
 Nesta::Overrides.load_local_app
 
+# before do
+#   puts "Path: " + request.path_info
+# end
+
 get "/css/:sheet.css" do
   content_type "text/css", :charset => "utf-8"
   cache sass(params[:sheet].to_sym)
 end
 
 get "/" do
+  # puts "root route"
   set_common_variables
+  # puts "variables set"
   set_from_config(:title, :subtitle, :description, :keywords)
+  # puts "config set"
+  
   @heading = @title
   @title = "#{@title} - #{@subtitle}"
   @articles = Page.find_articles[0..7]
+  # puts "ARTICLES LOADED"
   @body_class = "home"
   cache haml(:index)
+  # erb :yours, :layout => false
 end
 
 get %r{/attachments/([\w/.-]+)} do
