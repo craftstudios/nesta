@@ -1,3 +1,6 @@
+# Encoding.default_internal = 'utf-8' 
+Encoding.default_external = 'utf-8'
+
 require "rubygems"
 require "sinatra"
 require "builder"
@@ -98,6 +101,8 @@ helpers do
   
   def haml(template, options = {}, locals = {})
     render_options = Nesta::Overrides.render_options(template, :haml)
+    render_options = render_options.merge({:encoding => "ascii-8bit"})
+    puts render_options
     super(template, render_options.merge(options), locals)
   end
   
@@ -146,6 +151,10 @@ Nesta::Overrides.load_local_app
 
 # before do
 #   puts "Path: " + request.path_info
+# end
+# set utf-8 for outgoing
+# before do
+#   headers "Content-Type" => "text/html; charset=utf-8"
 # end
 
 get "/css/:sheet.css" do
