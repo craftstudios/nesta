@@ -1,15 +1,17 @@
+# raise Gem.path.inspect
+
 # Encoding.default_internal = 'utf-8' 
 Encoding.default_external = 'utf-8'
 
-require "rubygems"
-require "sinatra"
+# require "rubygems"
+# require "sinatra"
 require "builder"
 require "haml"
 require "sass"
-# require "logger"
+require "logger"
 
 # set the views directory
-set :views, File.dirname(__FILE__) + '/views'
+# set :views, File.dirname(__FILE__) + '/views'
 
 require File.join(File.dirname(__FILE__), *%w[lib cache])
 require File.join(File.dirname(__FILE__), *%w[lib config])
@@ -19,25 +21,19 @@ require File.join(File.dirname(__FILE__), *%w[lib overrides])
 
 set :cache_enabled, Nesta::Config.cache
 
-# configure do
-#   # Create the log file if it doesn't exist,
-#   # otherwise just start appending to it,
-#   # preserving the previous content
-#   log_file = File.open('log/nesta_log', 'a+')
-#   # Don't buffer writes to this file. Recommended for development.
-#   log_file.sync = true
-# 
-#   logger = Logger.new(log_file)
-#   # Log everything to the log file
-#   logger.level = Logger::DEBUG
-# 
-#   set :logger, logger
-# end
-# 
-# # Convenience method
-# def logger; settings.logger; end
+
+log = File.new("log/nesta.log", "a+")
+$stdout.reopen(log)
+
+configure do
+  LOGGER = Logger.new("log/nesta.log")
+end
 
 helpers do
+  def logger
+    LOGGER
+  end
+  
   def set_from_config(*variables)
     variables.each do |var|
       instance_variable_set("@#{var}", Nesta::Config.send(var))
@@ -62,7 +58,6 @@ helpers do
   
   def set_common_variables
     @menu_items = Page.menu_items
-    # puts "LOADED MENU ITEMS"
     @site_title = Nesta::Config.title
     set_from_config(:title, :subtitle, :google_analytics_code)
     @heading = @title
@@ -101,13 +96,22 @@ helpers do
   
   def haml(template, options = {}, locals = {})
     render_options = Nesta::Overrides.render_options(template, :haml)
-    render_options = render_options.merge({:encoding => "ascii-8bit"})
-    puts render_options
+    # render_options = render_options.merge({:encoding => "ascii-8bit"})
+    # puts render_options
     super(template, render_options.merge(options), locals)
   end
   
   def sass(template, options = {}, locals = {})
-    render_options = Nesta::Overrides.render_options(template, :sass)
+    logger.debug "Sass: #{template} #{options} #{locals}"
+    render_options = Nesta::Overrides.render_options(template, [:sass, :scss])
+    logger.debug "options: #{render_options.merge(options)}"
+    super(template, render_options.merge(options), locals)
+  end
+  
+  def scss(template, options = {}, locals = {})
+    logger.debug "Sass: #{template} #{options} #{locals}"
+    render_options = Nesta::Overrides.render_options(template, [:sass, :scss])
+    logger.debug "options: #{render_options.merge(options)}"
     super(template, render_options.merge(options), locals)
   end
   
@@ -149,33 +153,26 @@ end unless Sinatra::Application.environment == :development
 Nesta::Overrides.load_theme_app
 Nesta::Overrides.load_local_app
 
-# before do
-#   puts "Path: " + request.path_info
-# end
-# set utf-8 for outgoing
-# before do
-#   headers "Content-Type" => "text/html; charset=utf-8"
-# end
+before do
+  logger.info "PATH: #{request.path_info}"
+end
 
+#just match the subdirectory here!!
 get "/css/:sheet.css" do
   content_type "text/css", :charset => "utf-8"
-  cache sass(params[:sheet].to_sym)
+  # set :sass, :syntax => :scss
+  cache scss(params[:sheet].to_sym)
 end
 
 get "/" do
-  # puts "root route"
   set_common_variables
-  # puts "variables set"
   set_from_config(:title, :subtitle, :description, :keywords)
-  # puts "config set"
   
   @heading = @title
   @title = "#{@title} - #{@subtitle}"
   @articles = Page.find_articles[0..7]
-  # puts "ARTICLES LOADED"
   @body_class = "home"
   cache haml(:index)
-  # erb :yours, :layout => false
 end
 
 get %r{/attachments/([\w/.-]+)} do
