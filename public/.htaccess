@@ -1,0 +1,14 @@
+# Sample .htaccess file for Nesta funky caching
+# Rewrite index to check for static.
+RewriteCond  %{DOCUMENT_ROOT}/cache/index.html -f
+RewriteRule ^$ /cache/index.html [L,QSA]
+
+# Rewrite to check for cached page from cached folder.
+RewriteCond %{REQUEST_METHOD} ^GET$
+RewriteCond %{DOCUMENT_ROOT}/cache/%{REQUEST_URI}.html -f
+RewriteRule ^(.*)$ /cache/$1.html [L,QSA]
+
+# Everything else goes to Nesta
+RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_URI} !-f
+RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_URI} !-l
+RewriteRule (.*) http://127.0.0.1:9393%{REQUEST_URI} [L,P,QSA]
