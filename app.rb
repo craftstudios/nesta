@@ -1,5 +1,3 @@
-# raise Gem.path.inspect
-
 # Encoding.default_internal = 'utf-8' 
 Encoding.default_external = 'utf-8'
 
@@ -7,7 +5,6 @@ require "sinatra/base"
 require "builder"
 require "haml"
 require "sass"
-require "logger"
 
 # set the views directory
 # set :views, File.dirname(__FILE__) + '/views'
@@ -20,6 +17,13 @@ require File.join(File.dirname(__FILE__), *%w[lib overrides])
 
 module Nesta
   class App < Sinatra::Base
+	
+		log_file = File.open('log/nesta_log', 'a+')
+		# Don't buffer writes to this file. Recommended for development.
+		log_file.sync = true
+		LOGGER = Logger.new(log_file)
+		LOGGER.level = Logger::DEBUG
+	
     register Sinatra::Cache
 
     set :root, File.dirname(__FILE__)
@@ -91,21 +95,18 @@ module Nesta
       def haml(template, options = {}, locals = {})
         render_options = Nesta::Overrides.render_options(template, :haml)
         # render_options = render_options.merge({:encoding => "ascii-8bit"})
-        # puts render_options
         super(template, render_options.merge(options), locals)
       end
   
       def sass(template, options = {}, locals = {})
-        logger.debug "Sass: #{template} #{options} #{locals}"
-        render_options = Nesta::Overrides.render_options(template, [:sass, :scss])
-        logger.debug "options: #{render_options.merge(options)}"
-        super(template, render_options.merge(options), locals)
+        render_options = Nesta::Overrides.render_options(template, :sass)
+		    super(template, render_options.merge(options), locals)
       end
   
       def scss(template, options = {}, locals = {})
-        logger.debug "Sass: #{template} #{options} #{locals}"
-        render_options = Nesta::Overrides.render_options(template, [:sass, :scss])
-        logger.debug "options: #{render_options.merge(options)}"
+        LOGGER.debug "Scss: #{template} #{options} #{locals}"
+        render_options = Nesta::Overrides.render_options(template, :scss)
+        LOGGER.debug "options: #{render_options.merge(options)}"
         super(template, render_options.merge(options), locals)
       end
 
@@ -148,14 +149,15 @@ module Nesta
     Nesta::Overrides.load_local_app
 
 		before do
-		  logger.info "PATH: #{request.path_info}"
+		  LOGGER.info "PATH: #{request.path_info}"
 		end
 
 		#just match the subdirectory here!!
 		get "/css/:sheet.css" do
 		  content_type "text/css", :charset => "utf-8"
 		  # set :sass, :syntax => :scss
-		  cache scss(params[:sheet].to_sym)
+		  # cache sass(params[:sheet].to_sym)
+			scss(params[:sheet].to_sym)
 		end
 
     get "/" do
