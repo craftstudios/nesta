@@ -129,7 +129,9 @@ class Page < FileModel
     end
 
     def find_articles
-      find_all.select { |page| page.date }.sort { |x, y| y.date <=> x.date }
+      find_all.select do |page|
+        page.date && page.date < DateTime.now
+      end.sort { |x, y| y.date <=> x.date }
     end
     
     def menu_items
@@ -233,8 +235,7 @@ class Page < FileModel
     def valid_paths(paths)
       paths.select do |path|
         FORMATS.detect do |format|
-          File.exist?(
-              File.join(Nesta::Config.page_path, "#{path}.#{format}"))
+          File.exist?(File.join(Nesta::Config.page_path, "#{path}.#{format}"))
         end
       end
     end

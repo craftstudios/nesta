@@ -9,4 +9,4 @@ use Rack::FunkyCache, :directory => "public/cache"
 use Rack::Codehighlighter, :coderay, :markdown => true, :element => "pre>code", :pattern => /\A:::(\w+)\s*(\n|&#x000A;)/i
 
 require "./app"
-run Sinatra::Application
+run Nesta::App
