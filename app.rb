@@ -115,7 +115,7 @@ module Nesta
         # themes that want to give the user the option to add their own
         # CSS rules.
         File.exist?(
-            File.join(File.dirname(__FILE__), *%w[local views local.sass]))
+        File.join(File.dirname(__FILE__), *%w[local views local.sass]))
       end
     end
 
