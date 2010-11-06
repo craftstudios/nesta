@@ -5,6 +5,9 @@ gem "haml", "3.0.12"
 gem "maruku", "0.6.0"
 gem "RedCloth", "4.2.2"
 gem "sinatra", "1.0"
+gem "rack-funky-cache", "0.0.3"
+gem "coderay", "0.9.5"
+gem "rack-codehighlighter", "0.4.7"
 
 group :development do
   gem "shotgun"

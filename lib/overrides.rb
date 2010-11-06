@@ -28,14 +28,16 @@ module Nesta
       views && File.exist?(File.join(views, "#{template}.#{engine}"))
     end
 
-    def self.render_options(template, engine)
-      if template_exists?(engine, local_view_path, template)
-        { :views => local_view_path }
-      elsif template_exists?(engine, theme_view_path, template)
-        { :views => theme_view_path }
-      else
-        {}
+    def self.render_options(template, engines)
+      options = {}
+      engines.each do |engine|
+        if template_exists?(engine, local_view_path, template)
+          options = { :views => local_view_path }
+        elsif template_exists?(engine, theme_view_path, template)
+          options = { :views => theme_view_path }
+        end        
       end
+      return options
     end
   end
 end

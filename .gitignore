@@ -8,5 +8,4 @@ config/deploy.rb
 db/*.db
 public/cache
 content
-log/apache_access_log
-log/apache_error_log
+log/*
