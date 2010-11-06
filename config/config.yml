@@ -25,7 +25,7 @@ author:
 # easy to create or install, and live inside the themes directory. You
 # can also use scripts/theme to install them.
 #
-# theme: name-of-theme
+theme: keeny
 
 # If you want to use the Disqus service (http://disqus.com) to display
 # comments on your site, register a Disqus account and then specify your
@@ -41,7 +41,8 @@ disqus_short_name: keeny
 #     deploying Nesta to Heroku.
 #
 cache: false
-
+cache_dir: public/cache
+  
 # content
 #     The root directory where nesta will look for your article files.
 #     Should contain "pages" and "attachments" subdirectories that contain
@@ -68,6 +69,6 @@ content: content
 # Don't forget to uncomment the "production:" line too...
 
 production:
-  cache: true
-  content: /home/keeny/public_html/keeny.co.uk/public/shared/content
-  google_analytics_code: "UA-18800928-1"
+#   cache: true
+#   content: /home/keeny/public_html/keeny.co.uk/public/shared/content
+#   google_analytics_code: "UA-18800928-1"
