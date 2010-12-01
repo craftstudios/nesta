@@ -152,12 +152,10 @@ module Nesta
 		  LOGGER.info "PATH: #{request.path_info}"
 		end
 
-		#just match the subdirectory here!!
-		get "/css/:sheet.css" do
+		get "/:subdir/:sheet.css" do
 		  content_type "text/css", :charset => "utf-8"
-		  # set :sass, :syntax => :scss
-		  # cache sass(params[:sheet].to_sym)
-			scss(params[:sheet].to_sym)
+		  # LOGGER.info "CSS: #{params[:css]} TEMPLATE: #{params[:sheet]}"
+			scss :"#{params[:subdir]}/#{params[:sheet]}"
 		end
 
     get "/" do
@@ -166,6 +164,7 @@ module Nesta
       @heading = @title
       @title = "#{@title} - #{@subtitle}"
       @articles = Page.find_articles[0..7]
+			LOGGER.info "ARTICLES: #{@articles.length}"
       @body_class = "home"
       cache haml(:index)
     end
